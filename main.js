@@ -15,13 +15,13 @@ canvas.width = 600;
 canvas.height = 400;
 c.strokeStyle = "#000";
 
-let velocity = 8;
+let velocity = 4;
 let radius = 40;
-let dx = velocity;
-let dy = velocity;
+let dx = Math.random() > 0.5 ? velocity : -velocity;
+let dy = Math.random() > 0.5 ? velocity : -velocity;
 
-let x = 100;
-let y = 100;
+let x = clamp(Math.random() * canvas.width, radius, canvas.width - radius);
+let y = clamp(Math.random() * canvas.height, radius, canvas.height - radius);
 
 function moveCircle() {
   c.clearRect(0, 0, 600, 400);
@@ -41,6 +41,10 @@ function moveCircle() {
   y += dy;
 
   animationFrame = requestAnimationFrame(moveCircle);
+}
+
+function clamp(number, min, max) {
+  return Math.max(min, Math.min(number, max));
 }
 
 moveCircle();
