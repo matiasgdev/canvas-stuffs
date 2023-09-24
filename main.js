@@ -15,7 +15,7 @@ canvas.width = 600;
 canvas.height = 400;
 c.strokeStyle = "#000";
 
-let velocity = 4;
+let velocity = 8;
 let radius = 40;
 let dx = velocity;
 let dy = velocity;
