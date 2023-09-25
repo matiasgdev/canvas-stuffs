@@ -8,18 +8,24 @@ let cancelAnimationFrame =
   window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
 let animationFrame;
+
 let canvas = document.getElementById("canvas");
 let c = canvas.getContext("2d");
-
-let CIRCLES_SIZE = 150;
-
 canvas.width = 600;
 canvas.height = 400;
 c.strokeStyle = "#000";
 
-let radius = 25;
-let MAX_RADIUS = 50;
-let MIN_RADIUS = 5;
+let CIRCLES_SIZE = 400;
+let MAX_RADIUS = 35;
+const colors = [
+  "#E56399",
+  "#E3B505",
+  "#DE6E4B",
+  "#7FD1B9",
+  "#7A6563",
+  "#3A3042",
+  "#DB504A",
+];
 
 let mouse = {
   x: null,
@@ -40,12 +46,14 @@ class Circle {
     this.dx = dx;
     this.dy = dy;
     this.radius = radius;
+    this.minRadius = radius;
+    this.color = getRandomColor();
   }
 
   draw() {
     c.beginPath();
     c.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    c.stroke();
+    c.fillStyle = this.color;
     c.fill();
   }
 
@@ -68,7 +76,7 @@ class Circle {
       if (this.radius < MAX_RADIUS) {
         this.radius += 1;
       }
-    } else if (this.radius > MIN_RADIUS) {
+    } else if (this.radius > this.minRadius) {
       this.radius -= 1;
     }
 
@@ -82,7 +90,8 @@ class Circle {
 const circles = [];
 
 for (let i = 0; i < CIRCLES_SIZE; i++) {
-  let velocity = 1;
+  let velocity = Math.max(0.4, Math.random()) + 0.1;
+  let radius = Math.random() * 10 + 1;
   let dx = Math.random() > 0.5 ? velocity : -velocity;
   let dy = Math.random() > 0.5 ? velocity : -velocity;
   let x = clamp(Math.random() * canvas.width, radius, canvas.width - radius);
@@ -99,6 +108,10 @@ function animate() {
   });
 
   animationFrame = requestAnimationFrame(animate);
+}
+
+function getRandomColor() {
+  return colors[Math.floor(Math.random() * colors.length)];
 }
 
 function clamp(number, min, max) {
