@@ -11,14 +11,27 @@ let animationFrame;
 let canvas = document.getElementById("canvas");
 let c = canvas.getContext("2d");
 
-let CIRCLES_SIZE = 100;
+let CIRCLES_SIZE = 150;
 
 canvas.width = 600;
 canvas.height = 400;
 c.strokeStyle = "#000";
 
 let radius = 25;
-let velocity = 1.5;
+let MAX_RADIUS = 50;
+let MIN_RADIUS = 5;
+
+let mouse = {
+  x: null,
+  y: null,
+};
+
+window.addEventListener("mousemove", (event) => {
+  mouse = {
+    x: event.x,
+    y: event.y,
+  };
+});
 
 class Circle {
   constructor(x, y, dx, dy, radius) {
@@ -37,12 +50,26 @@ class Circle {
   }
 
   update() {
+    let aproximity = 50;
     if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
       this.dx = -this.dx;
     }
 
     if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
       this.dy = -this.dy;
+    }
+
+    if (
+      mouse.y - this.y < aproximity &&
+      mouse.y - this.y > -aproximity &&
+      mouse.x - this.x < aproximity &&
+      mouse.x - this.x > -aproximity
+    ) {
+      if (this.radius < MAX_RADIUS) {
+        this.radius += 1;
+      }
+    } else if (this.radius > MIN_RADIUS) {
+      this.radius -= 1;
     }
 
     this.x += this.dx;
@@ -55,8 +82,7 @@ class Circle {
 const circles = [];
 
 for (let i = 0; i < CIRCLES_SIZE; i++) {
-  let velocity = Math.max(2, Math.round(Math.random() * 5));
-  console.log(velocity);
+  let velocity = 1;
   let dx = Math.random() > 0.5 ? velocity : -velocity;
   let dy = Math.random() > 0.5 ? velocity : -velocity;
   let x = clamp(Math.random() * canvas.width, radius, canvas.width - radius);
