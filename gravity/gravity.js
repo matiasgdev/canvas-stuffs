@@ -9,19 +9,23 @@ let c = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let mouse = {
-  x: null,
-  y: null,
-};
 let gravity = 0.5;
 let friction = 0.8;
 let ball;
+const BALLS_SIZE = 350;
 
-window.addEventListener("mousemove", (event) => {
-  mouse = {
-    x: event.x,
-    y: event.y,
-  };
+const colors = [
+  "#E56399",
+  "#E3B505",
+  "#DE6E4B",
+  "#7FD1B9",
+  "#7A6563",
+  "#3A3042",
+  "#DB504A",
+];
+
+window.addEventListener("mousedown", () => {
+  init();
 });
 
 class Ball {
@@ -32,7 +36,7 @@ class Ball {
     this.dy = dy;
     this.radius = radius;
     this.minRadius = radius;
-    this.color = "#f00";
+    this.color = getRandomColor();
   }
 
   draw() {
@@ -59,15 +63,34 @@ class Ball {
   }
 }
 
+let balls = [];
+
 function animate() {
   c.clearRect(0, 0, window.innerWidth, window.innerHeight);
-  ball.update();
+
+  balls.forEach((ball) => {
+    ball.update();
+  });
+
   requestAnimationFrame(animate);
 }
 
 function init() {
-  ball = new Ball(90, canvas.height / 4, 9, 1, 25);
-  ball.update();
+  balls = [];
+  for (let i = 0; i < BALLS_SIZE; i++) {
+    let velocity = Math.max(0.4, Math.random()) + 0.1;
+    let radius = Math.random() * 20 + 8;
+    let dx = Math.random() > 0.5 ? velocity : -velocity;
+    let dy = Math.random() > 0.5 ? velocity : -velocity;
+    let x = clamp(Math.random() * canvas.width, radius, canvas.width - radius);
+    let y = clamp(
+      Math.random() * canvas.height,
+      radius,
+      canvas.height - radius * 4
+    );
+
+    balls.push(new Ball(x, y, dx, dy, radius));
+  }
 }
 
 function getRandomColor() {
