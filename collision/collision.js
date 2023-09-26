@@ -74,6 +74,7 @@ function animate() {
 }
 
 function init() {
+  cancelAnimationFrame(animation);
   ball1 = new Ball(300, 30, 0, 4, 30);
   ball2 = new Ball(350, 300, 0, 0, 50);
 
