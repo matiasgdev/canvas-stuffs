@@ -12,16 +12,34 @@ let c = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-console.log(canvas.width);
-
 const radius = 30;
 const BALLS_SPAWN_SIZE = 70;
+const colors = [
+  "#E56399",
+  "#E3B505",
+  "#DE6E4B",
+  "#7FD1B9",
+  "#7A6563",
+  "#3A3042",
+  "#DB504A",
+];
 
 let animation;
 let balls = [];
+let cursor = {
+  x: null,
+  y: null,
+};
 
 window.addEventListener("mousedown", () => {
   init();
+});
+
+window.addEventListener("mousemove", (event) => {
+  cursor = {
+    x: event.x,
+    y: event.y,
+  };
 });
 
 class Ball {
@@ -32,12 +50,19 @@ class Ball {
     this.dy = dy;
     this.radius = radius;
     this.mass = 1;
+    this.color = getRandomColor();
+    this.opacity = 0;
   }
 
   draw() {
     c.beginPath();
     c.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    c.strokeStyle = "red";
+    c.save();
+    c.globalAlpha = this.opacity;
+    c.fillStyle = this.color;
+    c.fill();
+    c.restore();
+    c.strokeStyle = this.color;
     c.stroke();
     c.closePath();
   }
@@ -57,6 +82,13 @@ class Ball {
 
     if (this.x + this.radius >= canvas.width || this.x - this.radius < 0) {
       this.dx = -this.dx;
+    }
+
+    if (getDistance(cursor, this) <= 150 && this.opacity <= 0.2) {
+      this.opacity += 0.02;
+    } else {
+      this.opacity -= 0.02;
+      this.opacity = Math.max(0, this.opacity);
     }
 
     this.x += this.dx;
@@ -117,11 +149,14 @@ function init() {
 }
 
 function isColliding(a, b) {
+  const distance = getDistance(a, b);
+  return distance < a.radius + b.radius;
+}
+
+function getDistance(a, b) {
   const xDist = a.x - b.x;
   const yDist = a.y - b.y;
-  const distance = Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
-
-  return distance < a.radius + b.radius;
+  return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
 }
 
 function collide(a, b) {
@@ -158,6 +193,10 @@ function collide(a, b) {
 
 function clamp(num, min, max) {
   return Math.max(min, Math.min(num, max));
+}
+
+function getRandomColor() {
+  return colors[Math.floor(Math.random() * colors.length)];
 }
 
 init();
