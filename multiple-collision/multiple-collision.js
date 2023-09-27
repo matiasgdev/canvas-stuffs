@@ -65,6 +65,18 @@ class Ball {
     c.strokeStyle = this.color;
     c.stroke();
     c.closePath();
+
+    c.beginPath();
+    c.arc(
+      this.x + this.radius * Math.cos(Math.atan2(this.dy, this.dx)),
+      this.y + this.radius * Math.sin(Math.atan2(this.dy, this.dx)),
+      8,
+      0,
+      Math.PI * 2
+    );
+    c.fillStyle = this.color;
+    c.fill();
+    c.closePath();
   }
 
   update(balls) {
