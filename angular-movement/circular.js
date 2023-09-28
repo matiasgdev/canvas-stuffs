@@ -13,7 +13,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let animation;
-let ball;
+let particles;
 let radius = 15;
 
 let centerX = canvas.width / 2;
@@ -49,7 +49,7 @@ class Particle extends Circle {
   constructor(x, y, vx, vy, radius, color, distance) {
     super(x, y, vx, vy, radius, color, distance);
     this.distance = distance;
-    this.angularVelocity = 0.2;
+    this.angularVelocity = 0.05;
     this.radians = Math.random() * Math.PI * 2;
   }
 
@@ -64,16 +64,36 @@ class Particle extends Circle {
 
 function animate() {
   animation = requestAnimationFrame(animate);
+  c.fillStyle = "rgba(255, 255, 255, 0.5)";
   c.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-  ball.update();
+  particles.forEach((particle) => {
+    particle.update();
+  });
 }
 
 function init() {
-  cancelAnimationFrame(animation);
-  ball = new Particle(centerX, centerY, 0, 4, radius, "pink", 50);
+  particles = [];
+
+  for (let i = 0; i < 50; i++) {
+    particles.push(
+      new Particle(
+        centerX,
+        centerY,
+        0,
+        4,
+        5,
+        "blue",
+        randomIntFromInterval(50, 120)
+      )
+    );
+  }
 
   animate();
+}
+
+function randomIntFromInterval(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 init();
