@@ -17,8 +17,15 @@ let centerY = canvas.height / 2;
 
 const colors = ["#E3B505", "#DE6E4B", "#DB504A"];
 
+const mouse = { x: centerX, y: centerY };
+
+window.addEventListener("mousemove", (e) => {
+  mouse.x = e.x;
+  mouse.y = e.y;
+});
+
 class GameObject {
-  constructor(x, y, vx, vy) {
+  constructor(x, y, vx, vy, mouse) {
     this.x = x;
     this.y = y;
     this.vx = vx;
@@ -27,12 +34,13 @@ class GameObject {
       x,
       y,
     };
+    this.mouse = mouse;
   }
 }
 
 class Circle extends GameObject {
-  constructor(x, y, vx, vy, radius, color) {
-    super(x, y, vx, vy);
+  constructor(x, y, vx, vy, mouse, radius, color) {
+    super(x, y, vx, vy, mouse);
     this.radius = radius;
     this.color = color;
   }
@@ -49,8 +57,8 @@ class Circle extends GameObject {
 }
 
 class Line extends GameObject {
-  constructor(x, y, vx, vy, width, color) {
-    super(x, y, vx, vy);
+  constructor(x, y, vx, vy, mouse, width, color) {
+    super(x, y, vx, vy, mouse);
     this.strokeColor = color;
     this.lineWidth = width;
   }
@@ -67,11 +75,15 @@ class Line extends GameObject {
 }
 
 class Particle extends Line {
-  constructor(x, y, vx, vy, width, color, distance, angularVelocity) {
-    super(x, y, vx, vy, width, color, distance);
+  constructor(x, y, vx, vy, mouse, width, color, distance, angularVelocity) {
+    super(x, y, vx, vy, mouse, width, color, distance);
     this.distance = distance;
     this.angularVelocity = angularVelocity;
     this.radians = Math.random() * Math.PI * 2;
+    this.lastMousePoint = {
+      x: this.mouse.y,
+      y: this.mouse.y,
+    };
   }
 
   update() {
@@ -79,8 +91,13 @@ class Particle extends Line {
       x: this.x,
       y: this.y,
     };
-    this.x = centerX + Math.cos(this.radians) * this.distance;
-    this.y = centerY + Math.sin(this.radians) * this.distance;
+
+    this.lastMousePoint.x += (this.mouse.x - this.lastMousePoint.x) * 0.05;
+    this.lastMousePoint.y += (this.mouse.y - this.lastMousePoint.y) * 0.05;
+
+    this.x = this.lastMousePoint.x + Math.cos(this.radians) * this.distance;
+    this.y = this.lastMousePoint.y + Math.sin(this.radians) * this.distance;
+
     this.radians += this.angularVelocity;
 
     this.draw();
@@ -112,6 +129,7 @@ function init() {
         centerY,
         0,
         2,
+        mouse,
         randomIntFromInterval(1, 3),
         getRandomColor(colors),
         randomIntFromInterval(40, 120),
