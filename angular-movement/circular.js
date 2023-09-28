@@ -15,43 +15,70 @@ let radius = 15;
 let centerX = canvas.width / 2;
 let centerY = canvas.height / 2;
 
+const colors = ["#E3B505", "#DE6E4B", "#DB504A"];
+
 class GameObject {
   constructor(x, y, vx, vy) {
     this.x = x;
     this.y = y;
     this.vx = vx;
     this.vy = vy;
+    this.lastPoint = {
+      x,
+      y,
+    };
   }
 }
 
 class Circle extends GameObject {
-  constructor(x, y, vx, vy, radius, fillColor, strokeColor) {
+  constructor(x, y, vx, vy, radius, color) {
     super(x, y, vx, vy);
     this.radius = radius;
-    this.fillColor = fillColor;
-    this.strokeColor = strokeColor;
+    this.color = color;
   }
 
   draw() {
     c.beginPath();
     c.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    c.fillStyle = this.fillColor;
-    c.strokeStyle = this.strokeColor;
+    c.fillStyle = this.color;
+    c.strokeStyle = this.color;
     c.stroke();
     c.fill();
     c.closePath();
   }
 }
 
-class Particle extends Circle {
-  constructor(x, y, vx, vy, radius, fillColor, strokeColor, distance) {
-    super(x, y, vx, vy, radius, fillColor, strokeColor, distance);
+class Line extends GameObject {
+  constructor(x, y, vx, vy, width, color) {
+    super(x, y, vx, vy);
+    this.strokeColor = color;
+    this.lineWidth = width;
+  }
+
+  draw() {
+    c.beginPath();
+    c.strokeStyle = this.strokeColor;
+    c.lineWidth = this.lineWidth;
+    c.moveTo(this.lastPoint.x, this.lastPoint.y);
+    c.lineTo(this.x, this.y);
+    c.stroke();
+    c.closePath();
+  }
+}
+
+class Particle extends Line {
+  constructor(x, y, vx, vy, width, color, distance, angularVelocity) {
+    super(x, y, vx, vy, width, color, distance);
     this.distance = distance;
-    this.angularVelocity = 0.05;
+    this.angularVelocity = angularVelocity;
     this.radians = Math.random() * Math.PI * 2;
   }
 
   update() {
+    this.lastPoint = {
+      x: this.x,
+      y: this.y,
+    };
     this.x = centerX + Math.cos(this.radians) * this.distance;
     this.y = centerY + Math.sin(this.radians) * this.distance;
     this.radians += this.angularVelocity;
@@ -67,7 +94,7 @@ function animate(timeStamp) {
   secondsPassed = (timeStamp - oldTimeStamp) / 1000;
   requestAnimationFrame(animate);
 
-  c.fillStyle = "rgba(255, 255, 255, 0.06)";
+  c.fillStyle = "rgba(255, 255, 255, 0.05)";
   c.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   particles.forEach((particle) => {
@@ -78,22 +105,26 @@ function animate(timeStamp) {
 function init() {
   particles = [];
 
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 100; i++) {
     particles.push(
       new Particle(
         centerX,
         centerY,
         0,
-        4,
-        5,
-        "blue",
-        "blue",
-        randomIntFromInterval(50, 120)
+        2,
+        randomIntFromInterval(1, 3),
+        getRandomColor(colors),
+        randomIntFromInterval(40, 120),
+        0.04
       )
     );
   }
 
   animate();
+}
+
+function getRandomColor(colors) {
+  return colors[Math.floor(Math.random() * colors.length)];
 }
 
 function randomIntFromInterval(min, max) {
