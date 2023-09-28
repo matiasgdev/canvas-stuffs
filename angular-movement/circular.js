@@ -4,15 +4,11 @@ let requestAnimationFrame =
   window.webkitRequestAnimationFrame ||
   window.msRequestAnimationFrame;
 
-let cancelAnimationFrame =
-  window.cancelAnimationFrame || window.mozCancelAnimationFrame;
-
 let canvas = document.getElementById("canvas");
 let c = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let animation;
 let particles;
 let radius = 15;
 
@@ -29,25 +25,27 @@ class GameObject {
 }
 
 class Circle extends GameObject {
-  constructor(x, y, vx, vy, radius, color) {
+  constructor(x, y, vx, vy, radius, fillColor, strokeColor) {
     super(x, y, vx, vy);
     this.radius = radius;
-    this.color = color;
+    this.fillColor = fillColor;
+    this.strokeColor = strokeColor;
   }
 
   draw() {
     c.beginPath();
     c.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    c.strokeStyle = this.color;
-    c.fillStyle = this.color;
-    c.fill();
+    c.fillStyle = this.fillColor;
+    c.strokeStyle = this.strokeColor;
     c.stroke();
+    c.fill();
+    c.closePath();
   }
 }
 
 class Particle extends Circle {
-  constructor(x, y, vx, vy, radius, color, distance) {
-    super(x, y, vx, vy, radius, color, distance);
+  constructor(x, y, vx, vy, radius, fillColor, strokeColor, distance) {
+    super(x, y, vx, vy, radius, fillColor, strokeColor, distance);
     this.distance = distance;
     this.angularVelocity = 0.05;
     this.radians = Math.random() * Math.PI * 2;
@@ -62,20 +60,25 @@ class Particle extends Circle {
   }
 }
 
-function animate() {
-  animation = requestAnimationFrame(animate);
-  c.fillStyle = "rgba(255, 255, 255, 0.5)";
-  c.clearRect(0, 0, window.innerWidth, window.innerHeight);
+let secondsPassed = 0;
+let oldTimeStamp = 0;
+
+function animate(timeStamp) {
+  secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+  requestAnimationFrame(animate);
+
+  c.fillStyle = "rgba(255, 255, 255, 0.06)";
+  c.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   particles.forEach((particle) => {
-    particle.update();
+    particle.update(secondsPassed);
   });
 }
 
 function init() {
   particles = [];
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 1; i++) {
     particles.push(
       new Particle(
         centerX,
@@ -83,6 +86,7 @@ function init() {
         0,
         4,
         5,
+        "blue",
         "blue",
         randomIntFromInterval(50, 120)
       )
